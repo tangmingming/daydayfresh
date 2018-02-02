@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import sys
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,50 +35,51 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'users.apps.UsersConfig',
-    'goods.apps.GoodsConfig',
-    'transact.apps.TransactConfig',
-    'user_operation.apps.UserOperationConfig',
-    'xadmin',
-    'crispy_forms',
-    'reversion',
-    'c_test',
+  'django.contrib.auth',
+  'django.contrib.contenttypes',
+  'django.contrib.sessions',
+  'django.contrib.messages',
+  'django.contrib.staticfiles',
+  'rest_framework',
+  'rest_framework.authtoken',
+  'django_filters',
+  'users.apps.UsersConfig',
+  'goods.apps.GoodsConfig',
+  'transact.apps.TransactConfig',
+  'user_operation.apps.UserOperationConfig',
+  'xadmin',
+  'crispy_forms',
+  'reversion',
+  'c_test',
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+  'django.middleware.security.SecurityMiddleware',
+  'django.contrib.sessions.middleware.SessionMiddleware',
+  'django.middleware.common.CommonMiddleware',
+  'django.middleware.csrf.CsrfViewMiddleware',
+  'django.contrib.auth.middleware.AuthenticationMiddleware',
+  'django.contrib.messages.middleware.MessageMiddleware',
+  'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'daydayfresh.urls'
 
 TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
+  {
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [os.path.join(BASE_DIR, 'templates')]
+    ,
+    'APP_DIRS': True,
+    'OPTIONS': {
+      'context_processors': [
+        'django.template.context_processors.debug',
+        'django.template.context_processors.request',
+        'django.contrib.auth.context_processors.auth',
+        'django.contrib.messages.context_processors.messages',
+      ],
     },
+  },
 ]
 
 WSGI_APPLICATION = 'daydayfresh.wsgi.application'
@@ -87,14 +89,14 @@ WSGI_APPLICATION = 'daydayfresh.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': "daydayfresh",
-        "HOST": "127.0.0.1",
-        "PORT": 3306,
-        "USER": "daydayfresh",
-        "PASSWORD": "wonders,1"
-    }
+  'default': {
+    'ENGINE': 'django.db.backends.mysql',
+    'NAME': "daydayfresh",
+    "HOST": "127.0.0.1",
+    "PORT": 3306,
+    "USER": "daydayfresh",
+    "PASSWORD": "wonders,1"
+  }
 }
 
 
@@ -102,18 +104,18 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+  {
+    'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+  },
+  {
+    'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+  },
+  {
+    'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+  },
+  {
+    'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+  },
 ]
 
 
@@ -141,40 +143,49 @@ STATIC_URL = '/static/'
 AUTH_USER_MODEL = "users.ShopUser"
 
 MEDIA_URL = "/media/"
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "static"),
+)
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        # 'rest_framework.permissions.IsAuthenticated',
-    ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework.authentication.BasicAuthentication',
-        # 'rest_framework.authentication.SessionAuthentication',
-        # 'rest_framework.authentication.TokenAuthentication',
-        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-    ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 10
+  'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+  'DEFAULT_PERMISSION_CLASSES': (
+    # 'rest_framework.permissions.IsAuthenticated',
+  ),
+  'DEFAULT_AUTHENTICATION_CLASSES': (
+    # 'rest_framework.authentication.BasicAuthentication',
+    'rest_framework.authentication.SessionAuthentication',
+    # 'rest_framework.authentication.TokenAuthentication',
+    'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+  ),
+  'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+}
+
+
+JWT_AUTH = {
+  "JWT_VERIFY_EXPIRATION": False,
+  # "JWT_EXPIRATION_DELTA": timedelta(seconds=60)
 }
 
 LOGGING = {
-    'disable_existing_loggers': False,
-    'version': 1,
-    'handlers': {
-        'console': {
-            # logging handler that outputs log messages to terminal
-            'class': 'logging.StreamHandler',
-            'level': 'DEBUG', # message level to be written to console
-        },
+  'disable_existing_loggers': False,
+  'version': 1,
+  'handlers': {
+    'console': {
+      # logging handler that outputs log messages to terminal
+      'class': 'logging.StreamHandler',
+      'level': 'DEBUG', # message level to be written to console
     },
-    'loggers': {
-        'django.db': {
-            # # django also has database level logging
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
+  },
+  'loggers': {
+    'django.db': {
+      # # django also has database level logging
+      'handlers': ['console'],
+      'level': 'DEBUG',
+      'propagate': False,
     },
+  },
 }
 
 #请求域名不自动添加末尾/
@@ -186,10 +197,21 @@ REGEX_MOBILE = "^1[358]\d{9}$|^147\d{8}$|^176\d{8}$"
 REGEX_VERIFYCODE = "^\d{4}$"
 
 SMS = {
-    "url": "https://sms.yunpian.com/v2/sms/single_send.json",
-    "apikey": "947bfcde6345fa588917fedf930dae2c",
-    "validity_period": 30,
-    "regex_mobile": "^1[358]\d{9}$|^147\d{8}$|^176\d{8}$",
-    "verifycode_len": 4,
-    "regex_verifycode": "^\d{4}$"
+  "url": "https://sms.yunpian.com/v2/sms/single_send.json",
+  "apikey": "947bfcde6345fa588917fedf930dae2c",
+  "validity_period": 30,
+  "regex_mobile": "^1[358]\d{9}$|^147\d{8}$|^176\d{8}$",
+  "verifycode_len": 4,
+  "regex_verifycode": "^\d{4}$"
+}
+
+
+PAY = {
+  "alipay": {
+    "app_id": "2016082600316878",
+    "app_notify_url": "",
+    "app_private_key_path": os.path.join(BASE_DIR, "apps/transact/keys/app_private_key.txt"),
+    "alipay_public_key_path": os.path.join(BASE_DIR, "apps/transact/keys/alipay_public_key.txt"),  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+    "return_url": "http://47.92.87.172:8000/"
+  }
 }

@@ -125,15 +125,16 @@ class AliPay(object):
 
 
 if __name__ == "__main__":
-    return_url = 'http://47.92.87.172:8000/?total_amount=0.01&timestamp=2017-08-15+17%3A15%3A13&sign=jnnA1dGO2iu2ltMpxrF4MBKE20Akyn%2FLdYrFDkQ6ckY3Qz24P3DTxIvt%2BBTnR6nRk%2BPAiLjdS4sa%2BC9JomsdNGlrc2Flg6v6qtNzTWI%2FEM5WL0Ver9OqIJSTwamxT6dW9uYF5sc2Ivk1fHYvPuMfysd90lOAP%2FdwnCA12VoiHnflsLBAsdhJazbvquFP%2Bs1QWts29C2%2BXEtIlHxNgIgt3gHXpnYgsidHqfUYwZkasiDGAJt0EgkJ17Dzcljhzccb1oYPSbt%2FS5lnf9IMi%2BN0ZYo9%2FDa2HfvR6HG3WW1K%2FlJfdbLMBk4owomyu0sMY1l%2Fj0iTJniW%2BH4ftIfMOtADHA%3D%3D&trade_no=2017081521001004340200204114&sign_type=RSA2&auth_app_id=2016080600180695&charset=utf-8&seller_id=2088102170208070&method=alipay.trade.page.pay.return&app_id=2016080600180695&out_trade_no=201702021222&version=1.0'
+    # return_url = 'http://47.92.87.172:8000/?total_amount=0.01&timestamp=2018-01-01+01%3A18%3A22&sign=ZD%2F%2BJD9t9N3LBfvxNSH7quW8uqdIbVAA47N7CN7B%2FzLlR6fQ1Ao%2BvT168nGxKmcNQT9wzccu3SUTJ9V%2BTJ8cWC0Wltvg0bnu94ZR%2FzjGhwxp5S1xHN3%2BbBNu4q%2FMYcskfMsRbC7zneZWa8jnqTj2JE4xg9ZDcm7rjxxX5UJWSNjgFJybmc2LPlyYb58DTyhU1OiyzGqdoPNik7416lXttnUvL0yPg7cvVvaddY5SiLCTqy29RprKp8DMxgdslV1rYZMmOwH46oCTLqJjQLMdg%2Focx7pQZtVPCoGAqYXEhm7%2BVb1aNitBGld%2BX7N1%2FpZy3yLnX6s8MCF%2BwbXf0b2mww%3D%3D&trade_no=2018010121001004670200579647&sign_type=RSA2&auth_app_id=2016082600316878&charset=utf-8&seller_id=2088102173153090&method=alipay.trade.page.pay.return&app_id=2016082600316878&out_trade_no=201702021223&version=1.0'
+    return_url = '/pay/alipaycallback?total_amount=0.01&timestamp=2018-01-01+01%3A18%3A22&sign=ZD%2F%2BJD9t9N3LBfvxNSH7quW8uqdIbVAA47N7CN7B%2FzLlR6fQ1Ao%2BvT168nGxKmcNQT9wzccu3SUTJ9V%2BTJ8cWC0Wltvg0bnu94ZR%2FzjGhwxp5S1xHN3%2BbBNu4q%2FMYcskfMsRbC7zneZWa8jnqTj2JE4xg9ZDcm7rjxxX5UJWSNjgFJybmc2LPlyYb58DTyhU1OiyzGqdoPNik7416lXttnUvL0yPg7cvVvaddY5SiLCTqy29RprKp8DMxgdslV1rYZMmOwH46oCTLqJjQLMdg%2Focx7pQZtVPCoGAqYXEhm7%2BVb1aNitBGld%2BX7N1%2FpZy3yLnX6s8MCF%2BwbXf0b2mww%3D%3D&trade_no=2018010121001004670200579647&sign_type=RSA2&auth_app_id=2016082600316878&charset=utf-8&seller_id=2088102173153090&method=alipay.trade.page.pay.return&app_id=2016082600316878&out_trade_no=201702021223&version=1.0'
 
     alipay = AliPay(
-        appid="2016082600316878",
-        app_notify_url="http://projectsedus.com/",
+        appid="2016082600316879",
+        app_notify_url="http://daydayfresh.mingmingt.xyz/pay/alipay/asyn_noti",
         app_private_key_path=BASE_DIR + "apps/transact/keys/app_private_key.txt",
         alipay_public_key_path=BASE_DIR + "apps/transact/keys/alipay_public_key.txt",  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
         debug=True,  # 默认False,
-        return_url="http://47.92.87.172:8000/"
+        return_url="http://daydayfresh.mingmingt.xyz/pay/alipay/sync_return"
     )
 
     o = urlparse(return_url)
@@ -142,12 +143,12 @@ if __name__ == "__main__":
     ali_sign = query.pop("sign")[0]
     for key, value in query.items():
         processed_query[key] = value[0]
-    print (alipay.verify(processed_query, ali_sign))
+    print(alipay.verify(processed_query, ali_sign))
 
     url = alipay.direct_pay(
-        subject="测试订单",
-        out_trade_no="201702021222",
-        total_amount=0.01
+        subject="购买劳斯莱斯幻影",
+        out_trade_no="201702021231",
+        total_amount=101.00
     )
     re_url = "https://openapi.alipaydev.com/gateway.do?{data}".format(data=url)
     print(re_url)

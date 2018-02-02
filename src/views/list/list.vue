@@ -11,13 +11,11 @@
         <el-card style="width: 220px">
           <div slot="header" class="clearfix">
             <span>卡片名称</span>
-            <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>
+            <el-button style="float: right; padding: 3px 0" type="text" @click="test()">操作按钮</el-button>
           </div>
           <el-tree
-            :data="data"
-            :props="defaultProps"
+            :data="classi_datas"
             :expand-on-click-node="false"
-            default-expand-all
             @node-click="handleNodeClick">
           </el-tree>
         </el-card>
@@ -38,22 +36,22 @@
           <a style="font-size: 12px">综合</a>
           <a style="font-size: 12px">综合</a>
         </el-card>
-        <div>
-          <div style="float: left; width: 226px; margin: 7px"  v-for="n in 10">
-            <el-card :body-style="{ padding: '0px' }">
-              <img style="width: 226px; height: 226px" src="../../static/images/merchandise/30_P_1448948663450.jpg">
-              <div style="padding: 14px;">
-                <span style="color:red">￥2000</span>
-                <a style="font-size: 12px">电脑都觉得男方家拿到今年非觉得呢动脑筋</a>
-              </div>
-            </el-card>
-          </div>
+        <div style="float: left; width: 226px; margin: 7px"  v-for="item of merchandises">
+          <el-card :body-style="{ padding: '0px' }">
+            <router-link :to="{name: 'merc-detail', query: {id: item.id}}" style="">
+            <img style="width: 226px; height: 226px" v-bind:src="item.front_cover_img">
+              <p style="height: 46px; margin: 2px 0px; overflow: hidden; font-size: 14px;"><span style="color:red; font-size: 18px">￥{{ item.sale_price }} </span>{{ item.name }}</p>
+            </router-link>
+            <p style="font-size: 12px; color: #888888; margin: 0">销量：{{ item.sales_numm }}</p>
+          </el-card>
         </div>
       </div>
       <div class="block;" style="float: right">
         <el-pagination
+          background
+          @current-change="handle_current_change"
           layout="prev, pager, next"
-          :total="1000">
+          :total="page_count">
         </el-pagination>
       </div>
     </div>
@@ -61,56 +59,113 @@
 </template>
 
 <script>
+  import primary from "@/api/primary"
+
   export default {
     data() {
       return {
-        data: [{
-          label: '一级 1',
-          children: [{
-            label: '二级 1-1',
-            children: [{
-              label: '三级 1-1-1'
-            }]
-          }]
-        }, {
-          label: '一级 2',
-          children: [{
-            label: '二级 2-1',
-            children: [{
-              label: '三级 2-1-1'
-            }]
-          }, {
-            label: '二级 2-2',
-            children: [{
-              label: '三级 2-2-1'
-            }]
-          }]
-        }, {
-          label: '一级 3',
-          children: [{
-            label: '二级 3-1',
-            children: [{
-              label: '三级 3-1-1'
-            }]
-          }, {
-            label: '二级 3-2',
-            children: [{
-              label: '三级 3-2-1'
-            }]
-          }]
-        }],
-        defaultProps: {
-          children: 'children',
-          label: 'label'
-        }
-      };
+        classi_datas: [],
+        page_is_search: true,
+        merchandises: [],
+
+        page: 1,
+        page_size: 12,
+        max_market_price: "",
+        min_market_price: "",
+        subclass: "",
+        ordering: "",
+
+        count: 0,
+        page_count: 0
+      }
     },
     methods: {
+      handle_current_change(data){
+        this.page = data
+        this.get_merchandises()
+      },
       handleNodeClick(data) {
-        console.log(data);
+        this.$router.push({name: "list", query: {classi_id: data.id}})
       },
       filter_price(min, max){
         console.log(min, max)
+      },
+      get_merchandises(){
+        var url = `merchandise?page=${this.page}&page_size=${this.page_size}&max_market_price=${this.max_market_price}&min_market_price=${this.min_market_price}&subclass=${this.subclass}&ordering=${this.ordering}&search=${this.search}`
+        var self = this
+        primary.get(url).then(function (response) {
+          self.merchandises = response.data.results
+          self.count = response.data.count
+        })
+        this.page_count = this.count/this.page_size
+        if(this.count % this.page_size == 0){
+          this.page_count += 1
+        }
+        if(!this.merchandises.length){
+          this.$notify({
+            title: '警告',
+            message: '没有相关商品',
+            type: 'warning'
+          });
+        }
+      },
+      test(){
+        console.log(this.classi_datas)
+      }
+    },
+    mounted(){
+      function dict_tree(datas){
+        var ret = []
+        for(let i of datas){
+          if(i.childs){
+            ret.push({
+              id: i.id,
+              label: i.name,
+              children: dict_tree(i.childs)
+            })
+            continue
+          }
+          ret.push({
+            id: i.id,
+            label: i.name
+          })
+        }
+        return ret
+      }
+      var self = this
+      primary.get("classification").then(function (response) {
+        console.log(response)
+        self.classi_datas = dict_tree(response.data)
+      })
+    },
+    updated(){
+      console.log("updated")
+    },
+    beforupdate(){
+      console.log("beforupdate")
+    },
+//    beforeRouteUpdate (to, from, next) {
+//      // react to route changes...
+//      // don't forget to call next()
+//      console.log("beforRouterUpdate")
+//    }
+    watch: {
+      '$route' (to, from) {
+        if(this.$route.query.search){
+          this.subclass = ""
+          this.search = this.$route.query.search
+          this.page = 1
+        }else if(this.$route.query.classi_id){
+          this.search = ""
+          this.subclass = this.$route.query.classi_id
+          this.page = 1
+        }else{
+          this.search = ""
+          this.subclass = ""
+          this.page = 1
+        }
+        this.get_merchandises()
+        console.log("watch")
       }
     }
   };

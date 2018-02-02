@@ -6,6 +6,7 @@ from rest_framework.routers import SimpleRouter
 
 router = SimpleRouter(trailing_slash=False)
 router.register("person", views.PersonViewSet, base_name="person")
+router.register("company", views.CompanyViewSet, base_name="company")
 
 # urlpatterns = [
 #     url(r"^$", views.Index.as_view()),

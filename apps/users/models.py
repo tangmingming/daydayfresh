@@ -21,7 +21,7 @@ class ShopUser(AbstractUser):
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return "{}:{}".format(self.nickname, self.mobile)
+        return "{}:{}".format(self.username, self.mobile)
 
 class VerifyCode(models.Model):
     """
@@ -37,3 +37,16 @@ class VerifyCode(models.Model):
 
     def __str__(self):
         return "{}:{}".format(self.mobile, self.code)
+
+class ReceInfo(models.Model):
+  """
+  收货信息
+  """
+  user = models.ForeignKey(ShopUser, verbose_name="用户")
+  name = models.CharField(max_length=10, verbose_name="姓名")
+  mobile = models.CharField(max_length=20, verbose_name="电话")
+  address = models.CharField(max_length=100, verbose_name="地址")
+
+  class Meta:
+    verbose_name = "收货信息"
+    verbose_name_plural = verbose_name

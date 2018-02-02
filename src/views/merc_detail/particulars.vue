@@ -1,5 +1,5 @@
 <template>
-  <div v-html="particulars">
+  <div v-html="merchandise.particulars">
 
   </div>
 </template>
@@ -8,8 +8,8 @@
   export default {
     data(){
       return {
-        particulars: "<h1>xiangqing</h1>"
       }
-    }
+    },
+    props: ["merchandise"]
   }
 </script>

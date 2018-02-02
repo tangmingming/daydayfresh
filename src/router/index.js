@@ -25,6 +25,10 @@ import test from "../test/test.vue"
 var router = new Router({
   routes: [
     {
+      path: "/",
+      redirect: {name: "index"}
+    },
+    {
       path: '/app',
       name: 'app',
       component: app,

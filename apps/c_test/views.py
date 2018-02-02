@@ -8,23 +8,26 @@ from rest_framework.views import APIView, Response
 from rest_framework import generics
 from rest_framework.mixins import CreateModelMixin
 from rest_framework import viewsets
+from rest_framework import permissions
+
+from django_filters.rest_framework import DjangoFilterBackend
 
 from . import serializers
 from . import models
 
 class Index(generics.ListAPIView):
-    queryset = models.Person.objects.all()
-    serializer_class = serializers.PersonSearialize
+  queryset = models.Person.objects.all()
+  serializer_class = serializers.PersonSearialize
 
 
 class Test_1(APIView):
-    def get(self, request, *args, **kwargs):
-        print(__name__)
-        return Response(datetime.datetime.now())
+  def get(self, request, *args, **kwargs):
+    print(__name__)
+    return Response(datetime.datetime.now())
 
 
 class Test_2(generics.CreateAPIView):
-    serializer_class = serializers.PersonSearialize
+  serializer_class = serializers.PersonSearialize
 
 
 # class PersonViewSet(viewsets.ModelViewSet):
@@ -53,12 +56,18 @@ class Test_2(generics.CreateAPIView):
 #         return Response("destroy")
 
 class PersonViewSet(viewsets.ModelViewSet):
-    queryset = models.Person.objects.all()
-    serializer_class = serializers.PersonSearialize
+  queryset = models.Person.objects.all()
+  serializer_class = serializers.PersonSearialize
+  filter_backends = (DjangoFilterBackend, )
+  filter_fields = "__all__"
+  # permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
 
-    def list(self, request, *args, **kwargs):
-        queryset = models.Person.objects.all()
-        serializer = serializers.Person()
+# a = PersonViewSet()
+# a.get_serializer(data="aaa")
+# a.as_view()
 
-class TestViewSet(viewsets.ViewSet):
-    pass
+class CompanyViewSet(viewsets.ModelViewSet):
+  queryset = models.Company.objects.all()
+  serializer_class = serializers.CompanSerializer
+  filter_backends = (DjangoFilterBackend, )
+  filter_fields = "__all__"

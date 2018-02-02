@@ -1,8 +1,10 @@
 <template>
   <el-badge :value="12" class="item"><el-dropdown>
-    <el-button>
-      查看购物车<i class="el-icon-arrow-down el-icon--right"></i>
-    </el-button>
+    <router-link :to="{ name: 'shopping-card'}">
+      <el-button>
+        查看购物车<i class="el-icon-arrow-down el-icon--right"></i>
+      </el-button>
+    </router-link>
     <el-dropdown-menu slot="dropdown">
       <el-dropdown-item v-for="i in 4" :key="i">
         <img style="float: left; width: 50px" src="../../static/images/merchandise/30_P_1448948663450.jpg" />

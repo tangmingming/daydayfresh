@@ -1,5 +1,5 @@
 <template>
-  <div style="margin-top: 30px; clear: both">
+  <div style="clear: both">
     <div style="background-color: green; height: 90px">
       <ul style="width: 1200px; margin: 0px auto; padding: 0">
         <li style="width: 25%; float: left; list-style: none">
@@ -22,3 +22,11 @@
     </div>
   </div>
 </template>
+
+<script>
+  export default{
+    created(){
+      console.log("footer")
+    }
+  }
+</script>

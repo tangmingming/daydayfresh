@@ -14,7 +14,7 @@ class Classification(models.Model):
         (3, "三级"),
     )
 
-    parent_class = models.ForeignKey("self", null=True, blank=True, verbose_name="父分类")
+    parent_class = models.ForeignKey("self", related_name="childs", null=True, blank=True, verbose_name="父分类")
     name = models.CharField(max_length=30, verbose_name="分类名称")
     code = models.CharField(max_length=30, verbose_name="唯一编码")
     desc = models.CharField(max_length=100, null=True, blank=True, verbose_name="描述")

@@ -6,8 +6,8 @@
       <el-breadcrumb-item>活动列表</el-breadcrumb-item>
       <el-breadcrumb-item>活动详情</el-breadcrumb-item>
     </el-breadcrumb>
-    <summary_2></summary_2>
-    <particulars v-for="i in 4" :key="i" style="width: 940px; float: left"></particulars>
+    <summary_2 :merchandise="merchandise"></summary_2>
+    <particulars style="width: 940px; float: left" :merchandise="merchandise"></particulars>
     <hot style="width: 260px; float: left"></hot>
   </div>
 </template>
@@ -17,11 +17,35 @@
   import particulars from "./particulars.vue"
   import hot from "./hot.vue"
 
+  import primary from "@/api/primary"
+
   export default {
+    data(){
+      return {
+        merchandise: {},
+        id: null
+      }
+    },
     components: {
       summary_2,
       particulars,
-      hot
+      hot,
+    },
+    mounted(){
+      var self = this
+      var id = this.$route.query.id
+      if(!id){
+        this.$message({
+          type: "error",
+          message: "url没有指定商品ID"
+        })
+        this.id = id
+        return
+      }
+      primary.get(`merchandise/${id}`).then(function (response) {
+        self.merchandise = response.data
+        console.log("merchandise")
+      })
     }
   }
 </script>

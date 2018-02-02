@@ -21,40 +21,70 @@
 
     <div style="width: 1200px; margin: 0 auto">
       <div>
-        <el-button plain>继续购物</el-button>
+        <router-link :to="{name: 'index'}"><el-button plain>继续购物</el-button></router-link>
         <el-button type="success" plain>去结算</el-button>
       </div>
       <el-card class="box-card">
         <el-table
-          :data="tableData3"
-          style="width: 100%">
+          ref="multipleTable"
+          :data="merchandises"
+          tooltip-effect="dark"
+          style="width: 100%"
+          @selection-change="handleSelectionChange">
           <el-table-column
-            fixed
-            prop="date"
-            label="日期"
-            width="438">
+            type="selection"
+            width="40"
+            align="center">
           </el-table-column>
           <el-table-column
-            prop="name"
-            label="姓名"
-            width="240">
+            label="商品信息"
+            width="360"
+            align="center">
+            <template slot-scope="scope">
+              <img style="height: 80px; width: 80px; float: left" :src="scope.row.merchandise.front_cover_img">
+              <p style="float: left; width: 230px; margin-left: 20px">{{ scope.row.merchandise.name }}</p>
+            </template>
           </el-table-column>
           <el-table-column
-            prop="province"
-            label="省份"
-            width="240">
+            label="单价"
+            width="200"
+            align="center">
+            <template slot-scope="scope">
+              <p>￥{{ scope.row.merchandise.sale_price }}</p>
+            </template>
           </el-table-column>
           <el-table-column
-            prop="city"
-            label="市区"
-            width="240">
+            label="数量"
+            width="200"
+            align="center">
+            <template slot-scope="scope">
+              <el-input-number v-model="scope.row.num" @change="update_merc_num(scope.row)" size="mini" :min="1" :max="10000"></el-input-number>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="金额"
+            width="200"
+            align="center">
+            <template slot-scope="scope">
+              <p style="color: #FE4407; font-weight: bold">￥{{ scope.row.merchandise.sale_price * scope.row.num }}</p>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="操作"
+            align="center">
+            <template slot-scope="scope">
+              <el-button type="text" size="small">添加到收藏</el-button><br>
+              <el-button type="text" size="small">删除</el-button>
+            </template>
           </el-table-column>
         </el-table>
       </el-card>
       <div>
-        <el-button type="text">清空购物车</el-button><br/>
-        <el-button plain>继续购物</el-button><br/>
-        <p style="text-align: right">3件商品，总价：<span style="color: green">￥659元</span></p>
+        <el-checkbox @change="handle_check_all" v-model="check_all">全选</el-checkbox>
+        <el-button type="text" @click="delete_selected()">删除勾选</el-button>
+        <el-button type="text" @click="clear_cart">清空购物车</el-button><br/>
+        <router-link :to="{name: 'index'}"><el-button plain>继续购物</el-button></router-link><br/>
+        <p style="text-align: right">已选{{ selected_mercs.length }}件商品，总价：<span style="color: green">￥{{ total_price }}元</span></p>
       </div>
       <el-card class="box-card" style="">
         <div slot="header" class="clearfix">
@@ -84,9 +114,12 @@
 </template>
 
 <script>
+  import primary from "@/api/primary"
+
   export default {
     data() {
       return {
+        merchandises: [],
         addresses: [
           {
             id: 1,
@@ -113,72 +146,108 @@
             name: "xxxxx",
           },
         ],
-        active_address: 2,
         tableData3: [{
           date: '2016-05-03',
           name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
+          address: '上海市普陀区金沙江路 1518 弄'
         }, {
           date: '2016-05-02',
           name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-08',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-06',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-07',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }]
+          address: '上海市普陀区金沙江路 1518 弄'
+        }],
+        multipleSelection: [],
+        active_address: 2,
+        checkedCities: [],
+        isIndeterminate: true,
+        check_all: false,
+        total_price: 0,
+        selected_mercs: []
       }
     },
     methods: {
+      handle_check_all(data) {
+        console.log("handle_check_all")
+        console.log(this.check_all)
+        if(this.check_all){
+          console.log("else")
+          this.merchandises.forEach(item => {
+            console.log("item:", item)
+            this.$refs.multipleTable.toggleRowSelection(item, true)
+          })
+        }else{
+          this.$refs.multipleTable.clearSelection()
+        }
+      },
+      handleSelectionChange(val) {
+        this.selected_mercs = val
+        var total_price = 0
+        val.forEach(item => {
+          total_price += item.merchandise.sale_price * item.num
+        })
+        this.total_price = total_price
+
+        if(val.length == this.merchandises.length){
+          this.check_all = true
+        }else{
+          this.check_all = false
+        }
+        this.multipleSelection = val
+      },
       select_address(id){
         this.active_address = id
-      }
-    }
+      },
+      delete_selected(){
+        this.selected_mercs.forEach(item => {
+          this.delete_shopingcard_item(item)
+        })
+      },
+      clear_cart(){
+        this.merchandises.forEach(item => {
+          this.delete_shopingcard_item(item)
+        })
+      },
+      get_shopingcard_data(){
+        var self = this
+        primary.get("shopingcard").then(function (response) {
+          self.merchandises = response.data
+        })
+      },
+      delete_shopingcard_item(item){
+        var self = this
+        primary.delete("shopingcard/"+item.id).then(response =>{
+          self.merchandises.forEach((i, index) => {
+            if(item == i){
+              this.merchandises.splice(index, 1)
+              return
+            }
+          })
+        })
+      },
+      update_merc_num(item){
+        setTimeout( () => {
+          primary.patch("shopingcard/"+item.id, {num: item.num})
+        }, 200)
+  },
+  test(d){
+    console.log("num", d.num)
+    console.log("d", d)
+    setTimeout(() => {
+      console.log("d", d)
+      console.log("num", d.num)
+    }, 200)
+  }
+  },
+  mounted(){
+    this.get_shopingcard_data()
+  }
   }
 </script>
 
 <style scoped>
   .active_address {
-    border: 1px solid red !important;
+    border: 1px solid red !important
   }
   li {
-    list-style: none;
+    list-style: none
   }
 </style>
